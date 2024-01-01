@@ -1,19 +1,17 @@
 
+
+import * as Location from 'expo-location';
+
 class LocationModel {
 
-    latitude: number
-    longitude: number
+    coords: Location.LocationObjectCoords
     timestamp: number
 
-    constructor(latitude: number, longitude: number, timestamp: number) {
-        this.validateInputs(latitude, longitude, timestamp)
-        this.latitude = latitude
-        this.longitude = longitude
+    constructor(coords: Location.LocationObjectCoords, timestamp: number) {
+        this.coords = coords
         this.timestamp = timestamp
     }
 
-    private validateInputs(latitude: number, longitude: number, timestamp: number): void  {
-    }
 }
 
 export default LocationModel
