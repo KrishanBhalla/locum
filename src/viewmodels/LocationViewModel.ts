@@ -1,11 +1,11 @@
-import LocationModel from "../models"
+import { LocationModel } from "../models"
 import * as Location from 'expo-location';
 import { LatLng, Region } from 'react-native-maps';
 
 const DEFAULT_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.High, distanceInterval: 10}
 const FAST_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.Balanced, distanceInterval: 10}
 
-class LocationViewModel {
+export class LocationViewModel {
 
     location: LocationModel
     foregroundSubscription: {remove: () => void} | null
@@ -98,5 +98,3 @@ class LocationViewModel {
         getUserLocation()
         }
 }
-
-export default LocationViewModel

@@ -2,9 +2,8 @@ import React from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
-import MapScreen from "./src/screens"
-import LocationViewModel from './src/viewmodels';
-import { Region } from 'react-native-maps';
+import { MapScreen } from "./src/screens"
+import { LocationViewModel } from './src/viewmodels';
 
 
 export default function App() {

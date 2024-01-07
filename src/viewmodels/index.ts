@@ -1,3 +1,2 @@
-import LocationViewModel from "./LocationViewModel";
-
-export default LocationViewModel
+export * from "./LocationViewModel";
+export * from "./UserViewModel";

@@ -1,4 +1,2 @@
-import LocationModel from "./LocationModel";
-
-
-export default LocationModel
+export * from "./LocationModel";
+export * from "./UserModel"

@@ -1,3 +1,2 @@
-import MapScreen from "./MapScreen"
-
-export default MapScreen
+export * from "./MapScreen"
+export * from "./LoginScreen"

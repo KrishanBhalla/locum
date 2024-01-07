@@ -1,14 +1,14 @@
 import React from 'react'
 import MapView, { Circle, Region } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native'
-import LocationViewModel from '../viewmodels';
+import { LocationViewModel } from '../viewmodels';
 import * as Location from 'expo-location';
 
 interface MapScreenProps {
     locationViewModel: LocationViewModel
 }
 
-const MapScreen = ({locationViewModel} : MapScreenProps) => {
+export const MapScreen = ({locationViewModel} : MapScreenProps) => {
 
     const [region, setRegion] = React.useState<Region>(locationViewModel.region)
     const [markerRadius, setMarkerRadius] = React.useState(1)
@@ -78,5 +78,3 @@ const styles = StyleSheet.create({
       height: '100%',
     },
   });
-
-export default MapScreen

@@ -2,7 +2,7 @@
 
 import * as Location from 'expo-location';
 
-class LocationModel {
+export class LocationModel {
 
     coords: Location.LocationObjectCoords
     timestamp: number
@@ -13,5 +13,3 @@ class LocationModel {
     }
 
 }
-
-export default LocationModel
