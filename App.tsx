@@ -2,39 +2,42 @@ import React from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { MapScreen } from "./src/screens"
-import { LocationViewModel } from './src/viewmodels';
+import { LoginScreen, MapScreen } from "./src/screens"
+import { LocationViewModel, UserViewModel } from './src/viewmodels';
+import { NavigationContainer } from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 
 export default function App() {
   // state
   const locationViewModel = new LocationViewModel()
+  const userViewModel = new UserViewModel()
   React.useEffect(() => {
   }, [])
 
 
-  // Set up view models
 
-
-  // // Invalid states
-  // if (!locationViewModel.canGetLocation) {
-  //   return (
-  //   <PaperProvider>
-  //     <View style={styles.container}>
-  //       <Text>This app requires location permissions to function</Text>
-  //       <Text>{locationViewModel.errorMsg || "No message"}</Text>
-  //     </View>
-  //   </PaperProvider>
-  //   )
-  // }
   // setup views
   return (
     <PaperProvider>
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <StatusBar style="auto" />
-      </View>
-      <MapScreen locationViewModel={locationViewModel}/>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{title: 'Welcome'}}
+          />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+      </Stack.Navigator>
+        <View style={styles.container}>
+          <Text>Open up App.js to start working on your app!</Text>
+          <StatusBar style="auto" />
+        </View>
+        <LoginScreen userViewModel={userViewModel}/>
+        <MapScreen locationViewModel={locationViewModel}/>
+      </NavigationContainer>
     </PaperProvider>
   );
 }
