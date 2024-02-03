@@ -1,20 +1,14 @@
+import * as SecureStore from 'expo-secure-store';
+
+const LOCAL_TOKEN_KEY = 'locum-token'
+const LOCAL_NAME_KEY = 'locum-full-name'
 
 export class UserModel {
 
-    username: string
-    email: string
-    token: string
-
-    constructor(username: string, email: string, persistentToken: string) {
-        this.username = username
-        this.email = email
-        this.token = persistentToken
-    }
-
-    public async validateCredentials(): Promise<void> {
+    public async login(persistentToken: string): Promise<void> {
         const response = await fetch("localhost:8080/login", {
             method: 'POST',
-            body: JSON.stringify({email: this.email, username: this.username, token: this.token}),
+            body: JSON.stringify({token: persistentToken}),
             headers: {'Content-Type': 'application/json'} 
           });
           
@@ -28,4 +22,23 @@ export class UserModel {
           // Success!
     }
 
+    public async saveTokenLocally(persistentToken: string) {
+        await SecureStore.setItemAsync(LOCAL_TOKEN_KEY, persistentToken);
+      }
+      
+    public async getTokenLocally(): Promise<string> {
+        return SecureStore.getItemAsync(LOCAL_TOKEN_KEY);
+    }
+
+    public async clearTokenLocally(): Promise<void> {
+        SecureStore.deleteItemAsync(LOCAL_TOKEN_KEY);
+    }
+
+    public async saveNameLocally(fullName: string) {
+        await SecureStore.setItemAsync(LOCAL_NAME_KEY, fullName);
+      }
+      
+    public async getNameLocally(): Promise<string> {
+        return SecureStore.getItemAsync(LOCAL_NAME_KEY);
+    }
 }
