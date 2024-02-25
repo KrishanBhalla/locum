@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { IFriend } from '../types';
+import { CLIENT } from '../api/constants';
 
 const LOCAL_FOLLOWERS_KEY = 'locum-followers-list'
 
@@ -23,13 +24,13 @@ export class FollowersModel {
     }
 
     public async getFollowersFromServer(userId): Promise<IFriend[]> {
-        // TODO: Not implement
-        let rawResult: IFriend = {name: "Test", userId: userId}
-        let result = JSON.stringify([rawResult]) //await SecureStore.getItemAsync(LOCAL_FOLLOWERS_KEY);
-      
-        if (result) {
-            return JSON.parse(result)
+
+        let data = await CLIENT.POST("/followers", { body: { userId : userId}})
+
+        if (data.error !== undefined) {
+            console.error("Error in getting followers");
+            return []
         }
-        return []
+        return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
     }
 }

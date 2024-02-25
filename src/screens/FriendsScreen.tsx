@@ -1,10 +1,11 @@
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import React from 'react'
-import { FollowersViewModel, FollowingViewModel } from '../viewmodels';
-import { List, Button, useTheme, Searchbar } from 'react-native-paper';
+import { FollowersViewModel, FollowingViewModel, UserViewModel } from '../viewmodels';
+import { List, Button, useTheme, Searchbar, Title } from 'react-native-paper';
 import { IFriend } from '../types';
 
 interface FriendsScreenProps {
+  userViewModel: UserViewModel,
   followersViewModel: FollowersViewModel,
   followingViewModel: FollowingViewModel,
 }
@@ -19,16 +20,20 @@ interface FriendsScreenProps {
  * That means a user needs a UserMosek , which connects to the server, finds the list of MyFriends, and updates the list on drag.
  * Each friend should have a "friend" page. That means clicking on the friend needs to navigate you, (where you can see a heatmap of where they go?)
  */
-export const FriendsScreen = ({ followersViewModel, followingViewModel }: FriendsScreenProps) => {
+export const FriendsScreen = ({ userViewModel, followersViewModel, followingViewModel }: FriendsScreenProps) => {
 
   const { colors } = useTheme()
   const [allFollowers, setAllFollowers] = React.useState<IFriend[]>([])
   const [allFollowing, setAllFollowing] = React.useState<IFriend[]>([])
   const [tabSelection, setTabSelection] = React.useState<FRIEND_TAB>("Followers")
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [searchResults, setSearchResults] = React.useState<IFriend[]>([]);
   const [refreshing, setRefreshing] = React.useState<boolean>(false);
 
-  const onChangeSearch = (query: string) => setSearchQuery(query);
+  const onChangeSearch = (query: string) => {
+    setSearchQuery(query)
+    userViewModel.queryUsers(query, async (res) => setSearchResults(res))
+  };
   const updateFollowers = () => followersViewModel.getFollowers(async (followers) => setAllFollowers(followers), async (_) => {setAllFollowers([])})
   const updateFollowing = () => followingViewModel.getFollowing(async (following) => setAllFollowing(following), async (_) => {setAllFollowing([])})
 
@@ -96,7 +101,7 @@ export const FriendsScreen = ({ followersViewModel, followingViewModel }: Friend
       case "Following":
         return followingPage()
       case "Search":
-        return searchPage(allFollowers, allFollowing, onChangeSearch, searchQuery)
+        return searchPage(colors, allFollowers, allFollowing, searchResults, onChangeSearch, searchQuery)
     }
   }
   return (
@@ -132,16 +137,50 @@ function friendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB
   return buttons
 }
 
-function searchPage(allFollowers: IFriend[], allFollowing: IFriend[], onChangeSearch: (query: string) => void, searchQuery: string): React.ReactNode {
+function searchPage(colors: ReactNativePaper.ThemeColors, allFollowers: IFriend[], allFollowing: IFriend[], searchResults: IFriend[], onChangeSearch: (query: string) => void, searchQuery: string): React.ReactNode {
+
+  let followingMap = new Set<string>()
+  let followersMap = new Set<string>()
+
+  allFollowers.forEach(f => followersMap.add(f.userId))
+  allFollowing.forEach(f => followingMap.add(f.userId))
 
   return (
-    <View style={styles.searchContainer}>
-      <Searchbar
-        style={styles.searchBar}
-        placeholder="Search"
-        onChangeText={onChangeSearch}
-        value={searchQuery}
-      />
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <Searchbar
+          style={styles.searchBar}
+          placeholder="Search"
+          onChangeText={onChangeSearch}
+          value={searchQuery}
+        />
+      </View>
+      <ScrollView style={styles.innerContainer}>
+        <List.Section key="following-list">
+          {searchResults.map(f => 
+            <List.Item 
+              key={f.userId}
+              title={f.name + (followersMap.has(f.userId) ? " (follows you)" : "")}
+              left={() => {
+                return  <List.Icon style={styles.listItemContainer} icon="account"/>
+              }}
+              right={() => {
+                let conditionalButton = <Button style={styles.buttonContainer} onPress={() => {
+                  // TODO
+                  return
+                }}>View Profile</Button>
+                if (!followingMap.has(f.userId)) {
+                  conditionalButton = <Button style={styles.buttonContainer} mode="outlined" color={colors.accent} onPress={() => {
+                    // TODO: send Follow Request
+                    return
+                  }}>Follow</Button>
+                }
+                return conditionalButton
+              }}
+            />)
+          }
+        </List.Section>
+      </ScrollView>
     </View>
   );
 }
@@ -156,10 +195,9 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     flexDirection: 'column',
-    alignSelf:'center'
   },
   searchContainer: {
-    flex: 1,
+    height: 'auto',
     flexDirection: 'column'
   },
   searchBar: {
@@ -167,6 +205,10 @@ const styles = StyleSheet.create({
     marginHorizontal: '2.5%'
   },
   buttonContainer: {
+    height: 'auto',
+    flexDirection: 'row',
+  },
+  listItemContainer: {
     height: 'auto',
     flexDirection: 'row',
   },

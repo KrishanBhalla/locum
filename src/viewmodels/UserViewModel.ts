@@ -20,6 +20,7 @@ export class UserViewModel {
             });
             this.userModel.saveTokenLocally(credential.user)
             this.userModel.saveNameLocally(credential.fullName.givenName || credential.email || credential.user)
+            this.userModel.login(credential.user, credential.fullName.givenName + " " + credential.fullName.familyName, credential.email)
             // TODO: verify with https://appleid.apple.com/auth/keys
             // signed in
         } catch (e) {
@@ -29,6 +30,11 @@ export class UserViewModel {
             // handle other errors
             }
         }
+    }
+
+    public async queryUsers(query: string, cb: UsersCallback): Promise<void> {
+        let results = await this.userModel.searchForUserOnServer(query)
+        cb(results)
     }
 
     public async logout(): Promise<void> {
@@ -66,3 +72,4 @@ export class UserViewModel {
 }
 
 type Callback = (result: string) => Promise<void>
+type UsersCallback = (result: IFriend[]) => Promise<void>

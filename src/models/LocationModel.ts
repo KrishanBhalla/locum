@@ -1,6 +1,8 @@
 
 
 import * as Location from 'expo-location';
+import { CLIENT } from "../api/constants"
+
 
 export class LocationModel {
 
@@ -11,5 +13,4 @@ export class LocationModel {
         this.coords = coords
         this.timestamp = timestamp
     }
-
 }

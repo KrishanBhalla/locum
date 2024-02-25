@@ -1,25 +1,35 @@
 import * as SecureStore from 'expo-secure-store';
+import { CLIENT } from "../api/constants"
+import { IFriend } from '../types';
+
 
 const LOCAL_TOKEN_KEY = 'locum-token'
 const LOCAL_NAME_KEY = 'locum-full-name'
 
+
 export class UserModel {
 
-    public async login(persistentToken: string): Promise<void> {
-        const response = await fetch("localhost:8080/login", {
-            method: 'POST',
-            body: JSON.stringify({token: persistentToken}),
-            headers: {'Content-Type': 'application/json'} 
-          });
-          
-          if (!response.ok) 
-          { 
-              console.error("Error");
-          }
-          else if (response.status >= 400) {
-              console.error('HTTP Error: '+response.status+' - '+response.statusText);
-          }
-          // Success!
+    public async login(persistentToken: string, fullName: string, email: string): Promise<void> {
+        const data  = await CLIENT.POST("/login", {body: {userId: persistentToken, fullName: fullName, email: email}});
+  
+        if (data.error !== undefined) 
+        { 
+            console.error("Error in login");
+        }
+    }
+
+
+    public async searchForUserOnServer(query: string): Promise<IFriend[]> {
+
+        console.log("Query:",  query)
+        const data = await CLIENT.POST("/users", {body: {queryString: query}})
+        if (data.error !== undefined) 
+        {   
+            console.error("Error in finding users", data.error);
+            return []
+        }
+        return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}}).sort((a, b) => (a.name < b.name) ? -1 : 1)
+    
     }
 
     public async saveTokenLocally(persistentToken: string) {

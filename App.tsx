@@ -66,7 +66,7 @@ export default function App() {
       />
     },
     map: () => <MapScreen locationViewModel={locationViewModel} />,
-    friends: () => <FriendsScreen followersViewModel={followersViewModel} followingViewModel={followingViewModel}/>,
+    friends: () => <FriendsScreen userViewModel={userViewModel} followersViewModel={followersViewModel} followingViewModel={followingViewModel}/>,
   });
 
 
