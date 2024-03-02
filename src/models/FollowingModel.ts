@@ -33,4 +33,14 @@ export class FollowingModel {
         }
         return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
     }
+
+    public async sendFollowRequest(userId, toFollowUserId): Promise<void> {
+
+        let data = await CLIENT.POST("/follow/request", { body: { userId : userId, followingUserId: toFollowUserId}})
+
+        if (data.error !== undefined) {
+            console.error("Error in getting following");
+            return 
+        }
+    }
 }
