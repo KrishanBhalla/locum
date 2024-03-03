@@ -42,7 +42,7 @@ export default function App() {
 
   const routes = [
     { key: 'map', title: 'Map', icon: 'map' },
-    { key: 'friends', title: 'Friends', icon: require('account-group-outline')},
+    { key: 'friends', title: 'Friends', icon: 'account-group-outline'},
     { key: 'user', title: isUserLoggedIn ? 'User' : 'Login', icon: isUserLoggedIn ? 'account-cog' : 'account-search' }
   ];
 

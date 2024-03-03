@@ -33,6 +33,11 @@ export class FollowingViewModel {
     }
     errorCallback(result);
   }
+
+  public async sendFollowRequest(toFollowUserId: string): Promise<void> {
+    let userId = await this.getUserId()
+    await this.followingModel.sendFollowRequest(userId, toFollowUserId);
+  }
 }
 
 type FollowingCallback = (result: IFriend[]) => Promise<void>

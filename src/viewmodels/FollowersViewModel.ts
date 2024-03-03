@@ -33,6 +33,21 @@ export class FollowersViewModel {
     }
     errorCallback(result);
   }
+
+  public async updateFollowerRequests(hasFollowerRequestsCallback: FollowersCallback, errorCallback: FollowersCallback): Promise<void> {
+    let userId = await this.getUserId()
+    let result = await this.followersModel.getFollowerRequestsFromServer(userId);
+    if (result) {
+      this.followersModel.saveFollowersLocally(result)
+      hasFollowerRequestsCallback(result)
+    }
+    errorCallback(result);
+  }
+
+  public async respondToFollowerRequest(followerUserId: string, requestAccepted: boolean): Promise<void> {
+    let userId = await this.getUserId()
+    await this.followersModel.updateFollowerRequest(userId, followerUserId, requestAccepted);
+  }
 }
 
 type FollowersCallback = (result: IFriend[]) => Promise<void>
