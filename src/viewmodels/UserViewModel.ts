@@ -18,11 +18,11 @@ export class UserViewModel {
                 AppleAuthentication.AppleAuthenticationScope.EMAIL,
             ],
             });
-            this.userModel.saveTokenLocally(credential.user)
             this.userModel.saveNameLocally(credential.fullName.givenName || credential.email || credential.user)
-            this.userModel.login(credential.user, credential.fullName.givenName + " " + credential.fullName.familyName, credential.email)
+            const token = await this.userModel.login(credential.user, credential.fullName.givenName + " " + credential.fullName.familyName, credential.email)
             // TODO: verify with https://appleid.apple.com/auth/keys
             // signed in
+            this.userModel.saveTokenLocally(token)
         } catch (e) {
             if (e.code === 'ERR_REQUEST_CANCELED') {
             // handle that the user canceled the sign-in flow

@@ -9,13 +9,15 @@ const LOCAL_NAME_KEY = 'locum-full-name'
 
 export class UserModel {
 
-    public async login(persistentToken: string, fullName: string, email: string): Promise<void> {
+    public async login(persistentToken: string, fullName: string, email: string): Promise<string> {
         const data  = await CLIENT.POST("/login", {body: {userId: persistentToken, fullName: fullName, email: email}});
   
-        if (data.error !== undefined) 
-        { 
+        if (data.error !== undefined) { 
             console.error("Error in login");
         }
+
+        const token = data.data.token
+        return token
     }
 
 

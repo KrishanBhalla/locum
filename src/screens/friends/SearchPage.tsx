@@ -5,29 +5,25 @@ import { styles } from './styles';
 
 export interface SearchPageProps {
     colors: ReactNativePaper.ThemeColors,
-    allFollowers: IFriend[],
-    allFollowing: IFriend[],
+    allFriends: IFriend[],
     searchResults: IFriend[],
     onChangeSearch: (query: string) => void,
-    onFollowRequestClick: (userToFollow: string) => void,
+    onFriendRequestClick: (userToFollow: string) => void,
     searchQuery: string
   }
   
 export const SearchPage = ({
     colors,
-    allFollowers,
-    allFollowing,
+    allFriends,
     searchResults,
     onChangeSearch,
-    onFollowRequestClick,
+    onFriendRequestClick,
     searchQuery
     }: SearchPageProps) => {
   
-    let followingMap = new Set<string>()
-    let followersMap = new Set<string>()
+    let friendsMap = new Set<string>()
   
-    allFollowers.forEach(f => followersMap.add(f.userId))
-    allFollowing.forEach(f => followingMap.add(f.userId))
+    allFriends.forEach(f => friendsMap.add(f.userId))
   
     return (
       <View style={styles.container}>
@@ -40,11 +36,11 @@ export const SearchPage = ({
           />
         </View>
         <ScrollView style={styles.innerContainer}>
-          <List.Section key="following-list">
+          <List.Section key="friend-list">
             {searchResults.map(f => 
               <List.Item 
                 key={f.userId}
-                title={f.name + (followersMap.has(f.userId) ? " (follows you)" : "")}
+                title={f.name}
                 left={() => {
                   return  <List.Icon style={styles.listItemContainer} icon="account"/>
                 }}
@@ -53,8 +49,8 @@ export const SearchPage = ({
                     // TODO: View Profile
                     return
                   }}>View Profile</Button>
-                  if (!followingMap.has(f.userId)) {
-                    conditionalButton = <Button style={styles.buttonContainer} mode="outlined" color={colors.accent} onPress={() => onFollowRequestClick(f.userId)}>Follow</Button>
+                  if (!friendsMap.has(f.userId)) {
+                    conditionalButton = <Button style={styles.buttonContainer} mode="outlined" color={colors.accent} onPress={() => onFriendRequestClick(f.userId)}>Send Friend Request</Button>
                   }
                   return conditionalButton
                 }}

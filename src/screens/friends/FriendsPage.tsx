@@ -4,19 +4,18 @@ import { List } from 'react-native-paper';
 import { styles } from './styles';
 import { IFriend } from '../../types';
 
-interface FollowerRequestsPageProps {
+interface FriendsPageProps {
     refreshing: boolean
     onRefresh: () => void
-    allFollowerRequests: IFriend[]
+    allFriends: IFriend[]
 }
 
-export function FollowerRequestsPage({refreshing, onRefresh, allFollowerRequests}: FollowerRequestsPageProps): React.ReactNode {
-    return (
+export const FriendsPage =({refreshing, onRefresh, allFriends}: FriendsPageProps) => (
     <ScrollView style={styles.innerContainer}>
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         <List.Subheader>Location Shared With:</List.Subheader>
-        <List.Section key="followers-list">
-            {allFollowerRequests.map(f => 
+        <List.Section key="friends-list">
+            {allFriends.map(f => 
             <List.Item 
                 key={f.userId}
                 title={f.name}
@@ -27,5 +26,4 @@ export function FollowerRequestsPage({refreshing, onRefresh, allFollowerRequests
             }
         </List.Section>
     </ScrollView>
-    )
-}
+)

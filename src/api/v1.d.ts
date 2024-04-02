@@ -13,33 +13,27 @@ export interface paths {
     /** @description Login or sign up */
     post: operations["loginOrSignup"];
   };
-  "/followers": {
-    /** @description Find all followers */
-    post: operations["findFollowers"];
-    /** @description deletes a single follower based on the userId and followerId supplied */
-    delete: operations["deleteFollower"];
+  "/friends": {
+    /** @description Find all friends */
+    get: operations["getFriends"];
+    /** @description deletes a single friend based on the userId and friendId supplied */
+    delete: operations["deleteFriend"];
   };
-  "/followers/requests": {
-    /** @description Find all followers */
-    post: operations["findFollowerRequests"];
+  "/friends/requests": {
+    /** @description Find all friend requests */
+    get: operations["getFriendRequests"];
   };
-  "/following": {
-    /** @description Find all following */
-    post: operations["findFollowing"];
-    /** @description deletes a single follower based on the userId and followerId supplied */
-    delete: operations["deleteFollowing"];
+  "/friends/locations": {
+    /** @description Find the locations of all friends */
+    get: operations["getLocationsOfFriends"];
   };
-  "/following/locations": {
-    /** @description Find the locations of all followed users */
-    post: operations["updateLocationsOfFollowedUsers"];
-  };
-  "/follow/request": {
+  "/friends/request": {
     /** @description Follow a new user */
-    post: operations["createFollowRequest"];
+    post: operations["createFriendRequest"];
   };
-  "/follow/response": {
-    /** @description Accept or reject a follow request */
-    post: operations["updateFollowRequest"];
+  "/friends/response": {
+    /** @description Accept or reject a friend request */
+    post: operations["updateFriendRequest"];
   };
 }
 
@@ -67,29 +61,19 @@ export interface components {
       fullName?: string;
       email?: string;
     };
-    FindFriendsRequest: {
-      userId: string;
+    LoginResponse: {
+      token: string;
     };
     FindFriendsResponse: components["schemas"]["UserResponse"][];
-    DeleteFollowerRequest: {
-      userId: string;
-      followerUserId: string;
+    DeleteFriendRequest: {
+      friendId: string;
     };
-    DeleteFollowingRequest: {
-      userId: string;
-      followingUserId: string;
+    GetFriendLocationsResponse: components["schemas"]["UserLocation"][];
+    FriendRequestRequest: {
+      friendId: string;
     };
-    UpdateFollowedUserLocationsRequest: {
-      userId: string;
-    };
-    UpdateFollowedUserLocationsResponse: components["schemas"]["UserLocation"][];
-    FollowRequestRequest: {
-      userId: string;
-      followingUserId: string;
-    };
-    FollowResponseRequest: {
-      userId: string;
-      requestedFollowerUserId: string;
+    FriendResponseRequest: {
+      friendId: string;
       accept: boolean;
     };
     Error: {
@@ -98,7 +82,12 @@ export interface components {
       message: string;
     };
   };
-  responses: never;
+  responses: {
+    /** @description Access token is missing or invalid */
+    UnauthorizedError: {
+      content: never;
+    };
+  };
   parameters: never;
   requestBodies: never;
   headers: never;
@@ -113,7 +102,7 @@ export interface operations {
 
   /** @description Returns all users from the server */
   findUsers: {
-    /** @description User prefix to seerch */
+    /** @description User prefix to search */
     requestBody: {
       content: {
         "application/json": components["schemas"]["UserRequest"];
@@ -126,6 +115,7 @@ export interface operations {
           "application/json": components["schemas"]["UserResponse"][];
         };
       };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;
@@ -143,27 +133,8 @@ export interface operations {
     responses: {
       /** @description Login Success */
       200: {
-        content: never;
-      };
-      /** @description unexpected error */
-      default: {
-        content: never;
-      };
-    };
-  };
-  /** @description Find all followers */
-  findFollowers: {
-    /** @description User to find the followers of */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["FindFriendsRequest"];
-      };
-    };
-    responses: {
-      /** @description Find Followers Response */
-      200: {
         content: {
-          "application/json": components["schemas"]["FindFriendsResponse"];
+          "application/json": components["schemas"]["LoginResponse"];
         };
       };
       /** @description unexpected error */
@@ -172,101 +143,68 @@ export interface operations {
       };
     };
   };
-  /** @description deletes a single follower based on the userId and followerId supplied */
-  deleteFollower: {
-    /** @description Follower/User pair to delete */
+  /** @description Find all friends */
+  getFriends: {
+    responses: {
+      /** @description Find Friends Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["FindFriendsResponse"];
+        };
+      };
+      401: components["responses"]["UnauthorizedError"];
+      /** @description unexpected error */
+      default: {
+        content: never;
+      };
+    };
+  };
+  /** @description deletes a single friend based on the userId and friendId supplied */
+  deleteFriend: {
+    /** @description Friend/User pair to delete */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DeleteFollowerRequest"];
+        "application/json": components["schemas"]["DeleteFriendRequest"];
       };
     };
     responses: {
-      /** @description follower deleted */
+      /** @description friend deleted */
       204: {
         content: never;
       };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;
       };
     };
   };
-  /** @description Find all followers */
-  findFollowerRequests: {
-    /** @description User to find the follower requests of */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["FindFriendsRequest"];
-      };
-    };
+  /** @description Find all friend requests */
+  getFriendRequests: {
     responses: {
-      /** @description Find Follow Request Response */
+      /** @description Find Friends Requests Response */
       200: {
         content: {
           "application/json": components["schemas"]["FindFriendsResponse"];
         };
       };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;
       };
     };
   };
-  /** @description Find all following */
-  findFollowing: {
-    /** @description User to find the following of */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["FindFriendsRequest"];
-      };
-    };
+  /** @description Find the locations of all friends */
+  getLocationsOfFriends: {
     responses: {
-      /** @description Find Following Response */
+      /** @description Get Friend Locations Response */
       200: {
         content: {
-          "application/json": components["schemas"]["FindFriendsResponse"];
+          "application/json": components["schemas"]["GetFriendLocationsResponse"];
         };
       };
-      /** @description unexpected error */
-      default: {
-        content: never;
-      };
-    };
-  };
-  /** @description deletes a single follower based on the userId and followerId supplied */
-  deleteFollowing: {
-    /** @description Following/User pair to delete */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["DeleteFollowingRequest"];
-      };
-    };
-    responses: {
-      /** @description follower deleted */
-      204: {
-        content: never;
-      };
-      /** @description unexpected error */
-      default: {
-        content: never;
-      };
-    };
-  };
-  /** @description Find the locations of all followed users */
-  updateLocationsOfFollowedUsers: {
-    /** @description User for whom we will find the location of their followign */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateFollowedUserLocationsRequest"];
-      };
-    };
-    responses: {
-      /** @description Find Following Response */
-      200: {
-        content: {
-          "application/json": components["schemas"]["UpdateFollowedUserLocationsResponse"];
-        };
-      };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;
@@ -274,30 +212,31 @@ export interface operations {
     };
   };
   /** @description Follow a new user */
-  createFollowRequest: {
+  createFriendRequest: {
     /** @description User to follow */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["FollowRequestRequest"];
+        "application/json": components["schemas"]["FriendRequestRequest"];
       };
     };
     responses: {
-      /** @description Follow Request Response */
+      /** @description Friend Request Response */
       200: {
         content: never;
       };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;
       };
     };
   };
-  /** @description Accept or reject a follow request */
-  updateFollowRequest: {
-    /** @description Accepted or denied follow request */
+  /** @description Accept or reject a friend request */
+  updateFriendRequest: {
+    /** @description Accepted or denied friend request */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["FollowResponseRequest"];
+        "application/json": components["schemas"]["FriendResponseRequest"];
       };
     };
     responses: {
@@ -305,6 +244,7 @@ export interface operations {
       200: {
         content: never;
       };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;

@@ -2,8 +2,10 @@ import React from 'react'
 import { StyleSheet } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme, DarkTheme, BottomNavigation, Theme } from 'react-native-paper';
 import { LoginScreen, MapScreen, UserScreen, FriendsScreen } from "./src/screens"
-import { FollowersViewModel, FollowingViewModel, LocationViewModel, UserViewModel } from './src/viewmodels';
-import { UserModel, FollowersModel, FollowingModel } from './src/models';
+import { FriendsViewModel, LocationViewModel, UserViewModel } from './src/viewmodels';
+import { UserModel, FriendsModel } from './src/models';
+import { Middleware } from 'openapi-fetch';
+import { CLIENT } from './src/api/constants';
 
 
 const lightTheme = {
@@ -27,18 +29,26 @@ const darkTheme = {
 export default function App() {
   // models
   const userModel = new UserModel()
-  const followersModel = new FollowersModel()
-  const followingModel = new FollowingModel()
+  const friendsModel = new FriendsModel()
   // View models
   const locationViewModel = new LocationViewModel()
   const userViewModel = new UserViewModel(userModel)
-  const followersViewModel = new FollowersViewModel(followersModel, userModel)
-  const followingViewModel = new FollowingViewModel(followingModel, userModel)
-
+  const friendsViewModel = new FriendsViewModel(friendsModel, userModel)
 
   const [index, setIndex] = React.useState<number>(0);
   const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean>(false);
   const [theme, setTheme] = React.useState<Theme>(lightTheme)
+
+  React.useEffect(() => {
+    const TokenMiddleware: Middleware = {
+      async onRequest(req, _) {
+      const token = await userModel.getTokenLocally()
+      req.headers.set("Authorization", token);
+      return req;
+      },
+    }
+    CLIENT.use(TokenMiddleware)
+  }, [isUserLoggedIn])
 
   const routes = [
     { key: 'map', title: 'Map', icon: 'map' },
@@ -66,7 +76,7 @@ export default function App() {
       />
     },
     map: () => <MapScreen locationViewModel={locationViewModel} />,
-    friends: () => <FriendsScreen userViewModel={userViewModel} followersViewModel={followersViewModel} followingViewModel={followingViewModel}/>,
+    friends: () => <FriendsScreen userViewModel={userViewModel} friendsViewModel={friendsViewModel}/>,
   });
 
 
