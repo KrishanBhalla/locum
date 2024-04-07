@@ -34,11 +34,20 @@ export class FriendsViewModel {
     errorCallback(result);
   }
 
+  public async getFriendRequests(hasFriendRequestsCallback: FriendsCallback, errorCallback: FriendsCallback): Promise<void> {
+    let result = await this.friendsModel.getFriendRequestsLocally();
+    if (result && result.length > 0) {
+      hasFriendRequestsCallback(result)
+      return
+    }
+    this.updateFriendRequests(hasFriendRequestsCallback, errorCallback)
+  }
+
   public async updateFriendRequests(hasFriendRequestsCallback: FriendsCallback, errorCallback: FriendsCallback): Promise<void> {
     
     let result = await this.friendsModel.getFriendRequestsFromServer();
     if (result) {
-      this.friendsModel.saveFriendsLocally(result)
+      this.friendsModel.saveFriendRequestsLocally(result)
       hasFriendRequestsCallback(result)
     }
     errorCallback(result);
@@ -49,7 +58,7 @@ export class FriendsViewModel {
     await this.friendsModel.updateFriendRequest(friendUserId, requestAccepted);
   }
   public async sendFriendRequest(toFollowUserId: string): Promise<void> {
-    let userId = await this.getUserId()
+  
     await this.friendsModel.sendFriendRequest(toFollowUserId);
   }
 }

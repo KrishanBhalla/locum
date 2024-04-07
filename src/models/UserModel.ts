@@ -4,6 +4,7 @@ import { IFriend } from '../types';
 
 
 const LOCAL_TOKEN_KEY = 'locum-token'
+const LOCAL_PERSISTENT_TOKEN_KEY = 'locum-persistent-token'
 const LOCAL_NAME_KEY = 'locum-full-name'
 
 
@@ -30,12 +31,26 @@ export class UserModel {
             console.error("Error in finding users", data.error);
             return []
         }
+        console.log(data)
         return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}}).sort((a, b) => (a.name < b.name) ? -1 : 1)
     
     }
 
-    public async saveTokenLocally(persistentToken: string) {
-        await SecureStore.setItemAsync(LOCAL_TOKEN_KEY, persistentToken);
+    public async savePersistentTokenLocally(token: string) {
+        await SecureStore.setItemAsync(LOCAL_PERSISTENT_TOKEN_KEY, token);
+      }
+
+    public async getPersistentTokenLocally(): Promise<string> {
+        return SecureStore.getItemAsync(LOCAL_PERSISTENT_TOKEN_KEY);
+    }
+
+    public async clearPersistentTokenLocally(): Promise<void> {
+        SecureStore.deleteItemAsync(LOCAL_PERSISTENT_TOKEN_KEY);
+    }
+
+    
+    public async saveTokenLocally(token: string) {
+        await SecureStore.setItemAsync(LOCAL_TOKEN_KEY, token);
       }
       
     public async getTokenLocally(): Promise<string> {

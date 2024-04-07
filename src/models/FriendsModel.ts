@@ -3,6 +3,7 @@ import { IFriend } from '../types';
 import { CLIENT } from '../api/constants';
 
 const LOCAL_FRIENDS_KEY = 'locum-friends-list'
+const LOCAL_FRIEND_REQUEST_KEY = 'locum-friend-requests-list'
 
 export class FriendsModel {
 
@@ -14,9 +15,21 @@ export class FriendsModel {
     public async saveFriendsLocally(friends: IFriend[]) {
         await SecureStore.setItemAsync(LOCAL_FRIENDS_KEY, JSON.stringify(friends));
       }
-      
+    
+    public async saveFriendRequestsLocally(friendReqs: IFriend[]) {
+    await SecureStore.setItemAsync(LOCAL_FRIEND_REQUEST_KEY, JSON.stringify(friendReqs));
+    }
+
     public async getFriendsLocally(): Promise<IFriend[]> {
         let result = await SecureStore.getItemAsync(LOCAL_FRIENDS_KEY);
+        if (result) {
+            return JSON.parse(result)
+        }
+        return []
+    }
+
+    public async getFriendRequestsLocally(): Promise<IFriend[]> {
+        let result = await SecureStore.getItemAsync(LOCAL_FRIEND_REQUEST_KEY);
         if (result) {
             return JSON.parse(result)
         }
@@ -31,9 +44,9 @@ export class FriendsModel {
             console.error("Error in getting followers");
             return []
         }
-        let followers = data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
-        await this.saveFriendsLocally(followers)
-        return followers
+        let friends = data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
+        await this.saveFriendsLocally(friends)
+        return friends
     }
 
 
@@ -45,7 +58,9 @@ export class FriendsModel {
             console.error("Error in getting friend requests");
             return []
         }
-        return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
+        let friendReqs = data.data.map(d => {return {name: d.fullName || "", userId: d.userId}})
+        await this.saveFriendRequestsLocally(friendReqs)
+        return friendReqs
     }
 
 

@@ -53,7 +53,7 @@ export default function App() {
   const routes = [
     { key: 'map', title: 'Map', icon: 'map' },
     { key: 'friends', title: 'Friends', icon: 'account-group-outline'},
-    { key: 'user', title: isUserLoggedIn ? 'User' : 'Login', icon: isUserLoggedIn ? 'account-cog' : 'account-search' }
+    { key: 'user', title: isUserLoggedIn ? 'Settings' : 'Login', icon: isUserLoggedIn ? 'cog' : 'account-search' }
   ];
 
   const renderScene = BottomNavigation.SceneMap({

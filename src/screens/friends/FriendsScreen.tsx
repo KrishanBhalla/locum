@@ -1,11 +1,12 @@
-import { View, ScrollView, RefreshControl } from 'react-native';
+import { View } from 'react-native';
 import React from 'react'
 import { FriendsViewModel, UserViewModel } from '../../viewmodels';
-import { List, Button, useTheme, Searchbar } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 import { IFriend } from '../../types';
 import { styles } from './styles';
 import { SearchPage } from './SearchPage'
 import { FriendsPage } from './FriendsPage';
+import { FriendRequestsPage } from './FriendRequestPage';
 
 interface FriendsScreenProps {
   userViewModel: UserViewModel,
@@ -26,6 +27,7 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
 
   const { colors } = useTheme()
   const [allFriends, setAllFriends] = React.useState<IFriend[]>([])
+  const [allFriendRequests, setAllFriendRequests] = React.useState<IFriend[]>([])
   const [tabSelection, setTabSelection] = React.useState<FRIEND_TAB>("Friends")
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [searchResults, setSearchResults] = React.useState<IFriend[]>([]);
@@ -36,13 +38,19 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
     userViewModel.queryUsers(query, async (res) => setSearchResults(res))
   };
   const updateFriends = () => friendsViewModel.getFriends(async (friends) => setAllFriends(friends), async (_) => {setAllFriends([])})
+  const updateFriendRequests = () => friendsViewModel.getFriendRequests(async (friendRequests) => setAllFriendRequests(friendRequests), async (_) => {setAllFriendRequests([])})
   const onFriendRequestClick = (userToFollow: string) => friendsViewModel.sendFriendRequest(userToFollow)
-
     
   const onRefresh = () => {
     setRefreshing(true)
     updateFriends()
+    updateFriendRequests()
     setRefreshing(false)
+  }
+
+  const onFriendRequestResponse = async (userToFollow: string, response: boolean) => {
+    await friendsViewModel.respondToFriendRequest(userToFollow, response)
+    onRefresh()
   }
   
   React.useEffect(() => {
@@ -51,8 +59,8 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
         updateFriends()
       case 'Search':
         // pass
-      case 'FriendRequests':
-        // pass
+      case 'Friend Requests':
+        updateFriendRequests()
     }
   }, [tabSelection])
 
@@ -73,6 +81,13 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
           onFriendRequestClick: onFriendRequestClick, 
           searchQuery: searchQuery
         })
+      case "Friend Requests":
+        return FriendRequestsPage({
+          refreshing: refreshing,
+          onRefresh: onRefresh,
+          allFriendRequests: allFriendRequests,
+          onFriendRequestResponse: onFriendRequestResponse
+        })
     }
   }
   return (
@@ -87,7 +102,7 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
 
 
 function friendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB) => void, colors: ReactNativePaper.ThemeColors): React.ReactNode[] {
-  let friendTabs: FRIEND_TAB[] = ["Friends", "Search"]
+  let friendTabs: FRIEND_TAB[] = ["Friends", "Friend Requests", "Search"]
   let buttons = []
 
   let buttonMode = (tab: string) => (tab === selectedTab ? 'contained' : 'outlined')
@@ -109,4 +124,4 @@ function friendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB
 }
 
 
-type FRIEND_TAB = "Friends" | "Search" | "FriendRequests"
+type FRIEND_TAB = "Friends" | "Search" | "Friend Requests"

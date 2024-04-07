@@ -22,6 +22,7 @@ export class UserViewModel {
             const token = await this.userModel.login(credential.user, credential.fullName.givenName + " " + credential.fullName.familyName, credential.email)
             // TODO: verify with https://appleid.apple.com/auth/keys
             // signed in
+            this.userModel.savePersistentTokenLocally(credential.user)
             this.userModel.saveTokenLocally(token)
         } catch (e) {
             if (e.code === 'ERR_REQUEST_CANCELED') {
@@ -39,16 +40,21 @@ export class UserViewModel {
 
     public async logout(): Promise<void> {
         const token = await this.userModel.getTokenLocally()
+        const persistentToken = await this.userModel.getPersistentTokenLocally()
         if (token) {
             this.userModel.clearTokenLocally()
+        }
+        if (persistentToken) {
+            this.userModel.clearPersistentTokenLocally()
         }
     }
     
     // Locally check for auth token, and validate with Apple, else errorCallback should force a sign-in.
     public async getToken(hasCredentialsCallback: Callback, errorCallback: Callback) {
         let result = await this.userModel.getTokenLocally();
-        if (result) {
-            let authResult = await AppleAuthentication.getCredentialStateAsync(result)
+        let persistentToken = await this.userModel.getPersistentTokenLocally()
+        if (result && persistentToken) {
+            let authResult = await AppleAuthentication.getCredentialStateAsync(persistentToken)
             if (authResult === AppleAuthentication.AppleAuthenticationCredentialState.AUTHORIZED) {
                 // This should:
                 // 1. Allow the user access to the app without delay
