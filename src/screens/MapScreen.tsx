@@ -1,19 +1,23 @@
 import React from 'react'
 import MapView, { Circle, Region, Marker } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native'
-import { LocationViewModel } from '../viewmodels';
+import { FriendLocationViewModel, LocationViewModel } from '../viewmodels';
 import * as Location from 'expo-location';
-import { FAB, useTheme } from 'react-native-paper';
+import { FAB, useTheme, Colors, Avatar } from 'react-native-paper';
+import { IUserLocation } from '../types';
+import { FriendLocationModel } from '../models';
 
 interface MapScreenProps {
   locationViewModel: LocationViewModel,
+  friendLocationsViewModel: FriendLocationViewModel
 }
 
-export const MapScreen = ({ locationViewModel }: MapScreenProps) => {
+export const MapScreen = ({ locationViewModel, friendLocationsViewModel }: MapScreenProps) => {
 
   const theme = useTheme();
   const [region, setRegion] = React.useState<Region>(locationViewModel.region)
   const [coords, setCoords] = React.useState<Location.LocationObjectCoords>(locationViewModel.location.coords)
+  const [friendLocations, setFriendLocations] = React.useState<IUserLocation[]>([])
 
   // Setup refs and animated effects
   let mapRef: MapView = new MapView({})
@@ -21,13 +25,34 @@ export const MapScreen = ({ locationViewModel }: MapScreenProps) => {
   React.useEffect(() => {
     const init = async () => {
       await locationViewModel.initialize(setCoords)
+      friendLocationsViewModel.getFriendLocations((loc) => setFriendLocations(loc), (_) => null)
       setRegion(locationViewModel.region)
+      friendLocationsViewModel.subscribeToFriendLocationUpdates((loc) => setFriendLocations(loc), (_) => null)
     }
     init()
 
   }, [])
 
   let latLng = { latitude: coords.latitude, longitude: coords.longitude }
+  const mapMarker = (loc: IUserLocation, colour: string) => {
+    return <Marker
+    key={loc.userId}
+    coordinate={{latitude: loc.coords.latitude, longitude: loc.coords.longitude }}
+    >
+        <View
+          style={{
+            width: MARKER_RADIUS * 2,
+            height: MARKER_RADIUS * 2,
+            backgroundColor: colour,
+            borderRadius: MARKER_RADIUS,
+            borderColor: COLOR_WHITE,
+            borderWidth: MARKER_RADIUS / 4
+          }}
+        />
+    </Marker>
+    }
+
+
   return (
     <MapView
       style={styles.map}
@@ -43,6 +68,9 @@ export const MapScreen = ({ locationViewModel }: MapScreenProps) => {
       }}
     >
       <Circle center={latLng} radius={coords.accuracy} fillColor={markerBlue(0.1)} strokeColor={markerBlue(0.2)} />
+      {
+        friendLocations.map(loc => mapMarker(loc, Colors.pink500))
+      }
       <Marker
         coordinate={latLng}
       >
@@ -55,7 +83,9 @@ export const MapScreen = ({ locationViewModel }: MapScreenProps) => {
             borderColor: COLOR_WHITE,
             borderWidth: MARKER_RADIUS / 4
           }}
-        />
+        >
+      </View>
+        
       </Marker>
       <FAB
         style={styles.fab}

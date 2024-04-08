@@ -20,7 +20,7 @@ interface FriendsScreenProps {
  *   a. That person will need to accept this
  * 3. A list of the friends you have
  * 
- * That means a user needs a UserMosek , which connects to the server, finds the list of MyFriends, and updates the list on drag.
+ * That means a user needs a UserModel , which connects to the server, finds the list of MyFriends, and updates the list on drag.
  * Each friend should have a "friend" page. That means clicking on the friend needs to navigate you, (where you can see a heatmap of where they go?)
  */
 export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreenProps) => {
@@ -37,14 +37,21 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
     setSearchQuery(query)
     userViewModel.queryUsers(query, async (res) => setSearchResults(res))
   };
-  const updateFriends = () => friendsViewModel.getFriends(async (friends) => setAllFriends(friends), async (_) => {setAllFriends([])})
-  const updateFriendRequests = () => friendsViewModel.getFriendRequests(async (friendRequests) => setAllFriendRequests(friendRequests), async (_) => {setAllFriendRequests([])})
+
+  const getFriends = () => friendsViewModel.getFriends((friends) => setAllFriends(friends), (_) => {setAllFriends([])})
+  const getFriendRequests = () => friendsViewModel.getFriendRequests((friendRequests) => setAllFriendRequests(friendRequests), (_) => {setAllFriendRequests([])})
+  const updateFriends = () => friendsViewModel.updateFriends((friends) => setAllFriends(friends), (_) => {setAllFriends([])})
+  const updateFriendRequests = () => friendsViewModel.updateFriendRequests((friendRequests) => setAllFriendRequests(friendRequests), (_) => {setAllFriendRequests([])})
   const onFriendRequestClick = (userToFollow: string) => friendsViewModel.sendFriendRequest(userToFollow)
     
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true)
-    updateFriends()
-    updateFriendRequests()
+    const updateFriendsPromise = updateFriends()
+    const updateFriendRequestsPromise = updateFriendRequests()
+    await Promise.all([updateFriendRequestsPromise, updateFriendsPromise])
+    const getFriendsPromise = getFriends()
+    const getFriendRequestsPromise = getFriendRequests()
+    await Promise.all([getFriendsPromise, getFriendRequestsPromise])
     setRefreshing(false)
   }
 
@@ -53,14 +60,15 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
     onRefresh()
   }
   
+
   React.useEffect(() => {
     switch(tabSelection) {
       case "Friends":
-        updateFriends()
+        getFriends()
       case 'Search':
         // pass
       case 'Friend Requests':
-        updateFriendRequests()
+        getFriendRequests()
     }
   }, [tabSelection])
 

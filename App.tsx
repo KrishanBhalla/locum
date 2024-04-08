@@ -2,8 +2,8 @@ import React from 'react'
 import { StyleSheet } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme, DarkTheme, BottomNavigation, Theme } from 'react-native-paper';
 import { LoginScreen, MapScreen, SettingsScreen, FriendsScreen } from "./src/screens"
-import { FriendsViewModel, LocationViewModel, UserViewModel } from './src/viewmodels';
-import { UserModel, FriendsModel } from './src/models';
+import { FriendsViewModel, LocationViewModel, UserViewModel, FriendLocationViewModel } from './src/viewmodels';
+import { UserModel, FriendsModel, FriendLocationModel } from './src/models';
 import { Middleware } from 'openapi-fetch';
 import { CLIENT } from './src/api/constants';
 
@@ -30,10 +30,12 @@ export default function App() {
   // models
   const userModel = new UserModel()
   const friendsModel = new FriendsModel()
+  const friendLocationModel = new FriendLocationModel()
   // View models
   const locationViewModel = new LocationViewModel()
   const userViewModel = new UserViewModel(userModel)
   const friendsViewModel = new FriendsViewModel(friendsModel, userModel)
+  const friendLocationsViewModel = new FriendLocationViewModel(friendsModel, userModel, friendLocationModel)
 
   const [index, setIndex] = React.useState<number>(0);
   const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean>(false);
@@ -75,7 +77,7 @@ export default function App() {
       }}
       />
     },
-    map: () => <MapScreen locationViewModel={locationViewModel} />,
+    map: () => <MapScreen locationViewModel={locationViewModel} friendLocationsViewModel={friendLocationsViewModel}/>,
     friends: () => <FriendsScreen userViewModel={userViewModel} friendsViewModel={friendsViewModel}/>,
   });
 

@@ -18,10 +18,9 @@ export class FriendsViewModel {
   public async getFriends(hasFriendsCallback: FriendsCallback, errorCallback: FriendsCallback): Promise<void> {
     let result = await this.friendsModel.getFriendsLocally();
     if (result && result.length > 0) {
-      hasFriendsCallback(result)
-      return
+      return hasFriendsCallback(result)
     }
-    this.updateFriends(hasFriendsCallback, errorCallback)
+    await this.updateFriends(hasFriendsCallback, errorCallback)
   }
 
   public async updateFriends(hasFriendsCallback: FriendsCallback, errorCallback: FriendsCallback): Promise<void> {
@@ -29,7 +28,7 @@ export class FriendsViewModel {
     let result = await this.friendsModel.getFriendsFromServer();
     if (result) {
       this.friendsModel.saveFriendsLocally(result)
-      hasFriendsCallback(result)
+      return hasFriendsCallback(result)
     }
     errorCallback(result);
   }
@@ -37,8 +36,7 @@ export class FriendsViewModel {
   public async getFriendRequests(hasFriendRequestsCallback: FriendsCallback, errorCallback: FriendsCallback): Promise<void> {
     let result = await this.friendsModel.getFriendRequestsLocally();
     if (result && result.length > 0) {
-      hasFriendRequestsCallback(result)
-      return
+      return hasFriendRequestsCallback(result)
     }
     this.updateFriendRequests(hasFriendRequestsCallback, errorCallback)
   }
@@ -63,4 +61,4 @@ export class FriendsViewModel {
   }
 }
 
-type FriendsCallback = (result: IFriend[]) => Promise<void>
+type FriendsCallback = (result: IFriend[]) => void
