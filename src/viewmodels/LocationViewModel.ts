@@ -1,7 +1,8 @@
 import { LocationModel } from "../models"
 import * as Location from 'expo-location';
 import { LatLng, Region } from 'react-native-maps';
-import { CLIENT } from "../api/constants";
+import haversine from 'haversine-distance'
+import haversineDistance from "haversine-distance";
 
 const DEFAULT_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.High, distanceInterval: 10}
 const FAST_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.Balanced, distanceInterval: 10}
@@ -13,10 +14,14 @@ export class LocationViewModel {
     locationOpts: Location.LocationOptions
     errorMsg: string
     canGetLocation: boolean = false
+
+    reqMetresToForceLocationUpdate = 10
+    reqMillisToForceLocationUpdate = 30_000
+
     region: Region
 
-    constructor(locationOpts: Location.LocationOptions = DEFAULT_LOCATION_OPTS) {
-        this.location = new LocationModel({latitude: 0, longitude: 0, altitude: 0, altitudeAccuracy: 1, accuracy: 1, heading: 0, speed: 0} , this.currentTimestamp())
+    constructor(locationModel, locationOpts: Location.LocationOptions = DEFAULT_LOCATION_OPTS) {
+        this.location = locationModel
         this.setInitialRegion()
         this.locationOpts = locationOpts
     }
@@ -28,15 +33,14 @@ export class LocationViewModel {
         await this.subscribeToLocationUpdates(setCoords)
     }
 
-    public async updateLocation(coords): Promise<void> {
-        let timestamp = this.currentTimestamp()
-        this.location.coords = coords
-        this.location.timestamp = timestamp
-        await CLIENT.POST("/updateLocation", {body: {
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            timestamp: timestamp
-        }})
+    public async updateLocation(coords: Location.LocationObjectCoords): Promise<void> {
+        const timestamp = this.currentTimestamp()
+        const timeSinceUpdate = (timestamp - this.location.timestamp)
+        if ( timeSinceUpdate >  this.reqMillisToForceLocationUpdate || haversineDistance(coords, this.location.coords) > this.reqMetresToForceLocationUpdate ) {
+            this.location.coords = coords
+            this.location.timestamp = timestamp
+            this.location.updateLocationOnServer(coords, timestamp)
+        }
     }
 
 
@@ -59,11 +63,6 @@ export class LocationViewModel {
 
     private async getUserLocationPermissions(): Promise<void> {
 
-        const foreground = await Location.requestForegroundPermissionsAsync()
-        if(!foreground.granted) {
-            this.errorMsg = 'Permission to access location was denied'
-            return
-        }
         const granted = await Location.getForegroundPermissionsAsync()
         if(!granted) {
             this.errorMsg = 'Location tracking denied!'

@@ -20,16 +20,18 @@ export class FriendLocationViewModel {
     if (friends.length == 0) {
       friends = await this.friendsModel.getFriendsFromServer()
     }
-    const locations = await this.friendLocationModel.getLatestLocations(friends)
-    if (locations) {
-      return hasFriendLocationsCallback(locations)
+    if (friends) {
+      const locations = await this.friendLocationModel.getLatestLocations(friends)
+      if (locations) {
+        return hasFriendLocationsCallback(locations)
+      }
+      errorCallback(locations);
     }
-    errorCallback(locations);
   }
 
   public async subscribeToFriendLocationUpdates(hasFriendLocationsCallback: FriendLocationCallback, errorCallback: FriendLocationCallback): Promise<void> {
 
-    setInterval(async () => this.getFriendLocations(hasFriendLocationsCallback, errorCallback), 10_000)
+    setInterval(async () => this.getFriendLocations(hasFriendLocationsCallback, errorCallback), 20_000)
   }
 
 }

@@ -13,4 +13,12 @@ export class LocationModel {
         this.coords = coords
         this.timestamp = timestamp
     }
+
+    public async updateLocationOnServer(coords: Location.LocationObjectCoords, timestamp: number) {
+        await CLIENT.POST("/updateLocation", {body: {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            timestamp: timestamp
+        }})
+    }
 }

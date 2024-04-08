@@ -25,7 +25,7 @@ export const MapScreen = ({ locationViewModel, friendLocationsViewModel }: MapSc
   React.useEffect(() => {
     const init = async () => {
       await locationViewModel.initialize(setCoords)
-      friendLocationsViewModel.getFriendLocations((loc) => setFriendLocations(loc), (_) => null)
+      await friendLocationsViewModel.getFriendLocations((loc) => setFriendLocations(loc), (_) => null)
       setRegion(locationViewModel.region)
       friendLocationsViewModel.subscribeToFriendLocationUpdates((loc) => setFriendLocations(loc), (_) => null)
     }
