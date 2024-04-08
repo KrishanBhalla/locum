@@ -1,6 +1,7 @@
 import { LocationModel } from "../models"
 import * as Location from 'expo-location';
 import { LatLng, Region } from 'react-native-maps';
+import { CLIENT } from "../api/constants";
 
 const DEFAULT_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.High, distanceInterval: 10}
 const FAST_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.Balanced, distanceInterval: 10}
@@ -27,9 +28,15 @@ export class LocationViewModel {
         await this.subscribeToLocationUpdates(setCoords)
     }
 
-    public updateLocation(coords): void {
+    public async updateLocation(coords): Promise<void> {
+        let timestamp = this.currentTimestamp()
         this.location.coords = coords
-        this.location.timestamp = this.currentTimestamp()
+        this.location.timestamp = timestamp
+        await CLIENT.POST("/updateLocation", {body: {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            timestamp: timestamp
+        }})
     }
 
 
@@ -47,7 +54,7 @@ export class LocationViewModel {
 
 
     private currentTimestamp(): number {
-        return Date.now()/1000
+        return Date.now()
     }
 
     private async getUserLocationPermissions(): Promise<void> {
@@ -70,7 +77,7 @@ export class LocationViewModel {
             return
         } 
         const currentLocation = await Location.getCurrentPositionAsync(FAST_LOCATION_OPTS)
-        this.location = new LocationModel(currentLocation.coords, Date.now() / this.currentTimestamp())
+        this.location = new LocationModel(currentLocation.coords, this.currentTimestamp())
     }
 
     private setInitialRegion(): void {

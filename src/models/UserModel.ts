@@ -21,6 +21,13 @@ export class UserModel {
         return token
     }
 
+    public async rename(newName: string): Promise<void> {
+        const data = await CLIENT.POST("/me/rename", {body: {newName: newName}});
+  
+        if (data.error !== undefined) { 
+            console.error("Error in rename");
+        }
+    }
 
     public async searchForUserOnServer(query: string): Promise<IFriend[]> {
 
@@ -31,7 +38,6 @@ export class UserModel {
             console.error("Error in finding users", data.error);
             return []
         }
-        console.log(data)
         return data.data.map(d => {return {name: d.fullName || "", userId: d.userId}}).sort((a, b) => (a.name < b.name) ? -1 : 1)
     
     }

@@ -13,6 +13,14 @@ export interface paths {
     /** @description Login or sign up */
     post: operations["loginOrSignup"];
   };
+  "/me/rename": {
+    /** @description Rename yourself */
+    post: operations["renameUser"];
+  };
+  "/updateLocation": {
+    /** @description Update your location */
+    post: operations["updateLocation"];
+  };
   "/friends": {
     /** @description Find all friends */
     get: operations["getFriends"];
@@ -48,9 +56,19 @@ export interface components {
       userId: string;
       fullName: string;
     };
+    RenameUserRequest: {
+      newName: string;
+    };
     /** @description The location of a user with a timestamp given in epoch millis */
     UserLocation: {
       userId: string;
+      latitude: number;
+      longitude: number;
+      /** Format: int64 */
+      timestamp: number;
+    };
+    /** @description The location of a the current with a timestamp given in epoch millis */
+    LocationUpdate: {
       latitude: number;
       longitude: number;
       /** Format: int64 */
@@ -137,6 +155,46 @@ export interface operations {
           "application/json": components["schemas"]["LoginResponse"];
         };
       };
+      /** @description unexpected error */
+      default: {
+        content: never;
+      };
+    };
+  };
+  /** @description Rename yourself */
+  renameUser: {
+    /** @description The New Name to assign */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RenameUserRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful rename */
+      200: {
+        content: never;
+      };
+      401: components["responses"]["UnauthorizedError"];
+      /** @description unexpected error */
+      default: {
+        content: never;
+      };
+    };
+  };
+  /** @description Update your location */
+  updateLocation: {
+    /** @description The new geotime */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LocationUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful locationUpdate */
+      200: {
+        content: never;
+      };
+      401: components["responses"]["UnauthorizedError"];
       /** @description unexpected error */
       default: {
         content: never;

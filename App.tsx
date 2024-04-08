@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme, DarkTheme, BottomNavigation, Theme } from 'react-native-paper';
-import { LoginScreen, MapScreen, UserScreen, FriendsScreen } from "./src/screens"
+import { LoginScreen, MapScreen, SettingsScreen, FriendsScreen } from "./src/screens"
 import { FriendsViewModel, LocationViewModel, UserViewModel } from './src/viewmodels';
 import { UserModel, FriendsModel } from './src/models';
 import { Middleware } from 'openapi-fetch';
@@ -59,7 +59,7 @@ export default function App() {
   const renderScene = BottomNavigation.SceneMap({
     user: () => {
         if (isUserLoggedIn) {
-        return <UserScreen userViewModel={userViewModel} toggleTheme={() => {
+        return <SettingsScreen userViewModel={userViewModel} toggleTheme={() => {
         if (theme.dark) {
           setTheme(lightTheme)
         } else {

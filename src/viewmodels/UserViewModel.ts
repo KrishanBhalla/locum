@@ -18,12 +18,12 @@ export class UserViewModel {
                 AppleAuthentication.AppleAuthenticationScope.EMAIL,
             ],
             });
-            this.userModel.saveNameLocally(credential.fullName.givenName || credential.email || credential.user)
             const token = await this.userModel.login(credential.user, credential.fullName.givenName + " " + credential.fullName.familyName, credential.email)
             // TODO: verify with https://appleid.apple.com/auth/keys
             // signed in
             this.userModel.savePersistentTokenLocally(credential.user)
             this.userModel.saveTokenLocally(token)
+            this.userModel.saveNameLocally(credential.fullName.givenName || credential.email || credential.user)
         } catch (e) {
             if (e.code === 'ERR_REQUEST_CANCELED') {
             // handle that the user canceled the sign-in flow
@@ -47,6 +47,11 @@ export class UserViewModel {
         if (persistentToken) {
             this.userModel.clearPersistentTokenLocally()
         }
+    }
+
+    public async rename(newName: string): Promise<void> {
+        this.userModel.saveNameLocally(newName)
+        await this.userModel.rename(newName)
     }
     
     // Locally check for auth token, and validate with Apple, else errorCallback should force a sign-in.
