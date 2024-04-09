@@ -8,6 +8,7 @@ import { Middleware } from 'openapi-fetch';
 import { CLIENT } from './src/api/constants';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import { ITheme } from './src/types';
 
 
 const lightTheme = {
@@ -44,18 +45,7 @@ export default function App() {
 
   const [index, setIndex] = React.useState<number>(0);
   const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean>(false);
-  const [theme, setTheme] = React.useState<Theme>(lightTheme)
-
-  React.useEffect(() => {
-    const TokenMiddleware: Middleware = {
-      async onRequest(req, _) {
-      const token = await userModel.getTokenLocally()
-      req.headers.set("Authorization", token);
-      return req;
-      },
-    }
-    CLIENT.use(TokenMiddleware)
-  }, [isUserLoggedIn])
+  const [themeKey, setThemeKey] = React.useState<ITheme>("light")
 
   // Request permissions for location
   React.useEffect(() => {
@@ -64,6 +54,7 @@ export default function App() {
       if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
     }
     requestPermissions()
+    userViewModel.getTheme(async (theme) => setThemeKey(theme))
   }, [])
 
   React.useEffect(() => {
@@ -77,6 +68,22 @@ export default function App() {
     CLIENT.use(TokenMiddleware)
   }, [isUserLoggedIn])
 
+
+
+  React.useEffect(() => {
+    const TokenMiddleware: Middleware = {
+      async onRequest(req, _) {
+      const token = await userModel.getTokenLocally()
+      req.headers.set("Authorization", token);
+      return req;
+      },
+    }
+    CLIENT.use(TokenMiddleware)
+  }, [isUserLoggedIn])
+
+
+  const theme = themeKey == "light" ? lightTheme : darkTheme
+
   const routes = [
     { key: 'map', title: 'Map', icon: 'map' },
     { key: 'friends', title: 'Friends', icon: 'account-group-outline'},
@@ -88,9 +95,11 @@ export default function App() {
         if (isUserLoggedIn) {
         return <SettingsScreen userViewModel={userViewModel} toggleTheme={() => {
         if (theme.dark) {
-          setTheme(lightTheme)
+          setThemeKey("light")
+          userViewModel.setTheme("light")
         } else {
-          setTheme(darkTheme)
+          setThemeKey("dark")
+          userViewModel.setTheme("dark")
         }
       }} setUserIsLoggedOut={() => setIsUserLoggedIn(false)} />
     }
@@ -150,66 +159,67 @@ const styles = StyleSheet.create({
   },
 });
 
+////// RUN THE BELOW FOR BACKGROUND LOCATION
 
-const LOCATION_TASK_NAME = "LOCUM-BACKGROUND-LOCATION"
+// const LOCATION_TASK_NAME = "LOCUM-BACKGROUND-LOCATION"
 
-interface BackgroundLocationUpdate {
-  data: {
-    locations: Location.LocationObject[]
-  },
-  error: any
-}
+// interface BackgroundLocationUpdate {
+//   data: {
+//     locations: Location.LocationObject[]
+//   },
+//   error: any
+// }
 
-const startBackgroundUpdate = async () => {
-    // Don't track position if permission is not granted
-    const { granted } = await Location.getBackgroundPermissionsAsync()
-    if (!granted) {
-        console.log("location tracking denied")
-        return
-    }
+// const startBackgroundUpdate = async () => {
+//     // Don't track position if permission is not granted
+//     const { granted } = await Location.getBackgroundPermissionsAsync()
+//     if (!granted) {
+//         console.log("location tracking denied")
+//         return
+//     }
 
-    // Make sure the task is defined otherwise do not start tracking
-    const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
-    if (!isTaskDefined) {
-        console.log("Task is not defined")
-        return
-    }
+//     // Make sure the task is defined otherwise do not start tracking
+//     const isTaskDefined = await TaskManager.isTaskDefined(LOCATION_TASK_NAME)
+//     if (!isTaskDefined) {
+//         console.log("Task is not defined")
+//         return
+//     }
 
-    // Don't track if it is already running in background
-    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
-        LOCATION_TASK_NAME
-    )
-    if (hasStarted) {
-        console.log("Already started")
-        return
-    }
+//     // Don't track if it is already running in background
+//     const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+//         LOCATION_TASK_NAME
+//     )
+//     if (hasStarted) {
+//         console.log("Already started")
+//         return
+//     }
 
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        // For better logs, we set the accuracy to the most sensitive option
-        accuracy: Location.Accuracy.Highest,
-        // Make sure to enable this notification if you want to consistently track in the background
-        showsBackgroundLocationIndicator: true,
-        foregroundService: {
-        notificationTitle: "Locum",
-        notificationBody: "Locum is tracking location in the background",
-        notificationColor: "#fff",
-        },
-    })
-}
+//     await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+//         // For better logs, we set the accuracy to the most sensitive option
+//         accuracy: Location.Accuracy.Highest,
+//         // Make sure to enable this notification if you want to consistently track in the background
+//         showsBackgroundLocationIndicator: true,
+//         foregroundService: {
+//         notificationTitle: "Locum",
+//         notificationBody: "Locum is tracking location in the background",
+//         notificationColor: "#fff",
+//         },
+//     })
+// }
 
-// Define the background task for location tracking
-TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data: { locations } , error }: BackgroundLocationUpdate) => {
-if (error) {
-    console.error(error)
-    return
-}
-if (locations) {
-    // Extract location coordinates from data
-    const location = locations.pop()
-    if (location) {
-    locationModel.updateLocationOnServer(location.coords, location.timestamp)
-    }
-}
-})
+// // Define the background task for location tracking
+// TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data: { locations } , error }: BackgroundLocationUpdate) => {
+// if (error) {
+//     console.error(error)
+//     return
+// }
+// if (locations) {
+//     // Extract location coordinates from data
+//     const location = locations.pop()
+//     if (location) {
+//     locationModel.updateLocationOnServer(location.coords, location.timestamp)
+//     }
+// }
+// })
 
-startBackgroundUpdate()
+// startBackgroundUpdate()

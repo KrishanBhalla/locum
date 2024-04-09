@@ -1,6 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import { UserModel } from "../models";
-import { IFriend } from "../types";
+import { IFriend, ITheme } from "../types";
 
 export class UserViewModel {
     
@@ -80,6 +80,15 @@ export class UserViewModel {
         }
         errorCallback(result);
       }
+    
+    public async getTheme(themeCallback: (result: ITheme) => Promise<void>): Promise<void> {
+        let theme = await this.userModel.getThemeLocally();
+        themeCallback(theme)
+    }
+
+    public async setTheme(theme: ITheme): Promise<void> {
+        this.userModel.saveThemeLocally(theme);
+    }
 }
 
 type Callback = (result: string) => Promise<void>

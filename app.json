@@ -21,7 +21,9 @@
         "UIBackgroundModes": [
           "location", "fetch"
         ],
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allows App to use location services in the foreground and background."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allows Locum to use location services in the foreground and background.",
+        "NSLocationAlwaysDescription": "Allows Locum to use location services in the background.",
+        "NSLocationWhenInUseUsageDescription": "Allows Locum to use location services in the foreground."
       }
     },
     "android": {
