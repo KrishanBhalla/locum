@@ -19,12 +19,12 @@
       "usesAppleSignIn": true,
       "infoPlist": {
         "UIBackgroundModes": [
-          "location", "fetch"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Allows Locum to use location services in the foreground and background.",
         "NSLocationAlwaysDescription": "Allows Locum to use location services in the background.",
         "NSLocationWhenInUseUsageDescription": "Allows Locum to use location services in the foreground."
-      }
+      },
+      "bundleIdentifier": "com.locum.locum"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,8 +32,13 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-	      "ACCESS_BACKGROUND_LOCATION"
-	    ]
+        "ACCESS_BACKGROUND_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ],
+      "package": "com.locum"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -43,7 +48,7 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "isIosBackgroundLocationEnabled": true,
+          "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": true
         }
       ]
