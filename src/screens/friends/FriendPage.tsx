@@ -1,7 +1,7 @@
 import React from 'react'
 import MapView, { Region } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native'
-import { useTheme, Avatar, Title } from 'react-native-paper';
+import { useTheme, Avatar, Title, Button } from 'react-native-paper';
 import * as mapFunctions from '../mapFunctions';
 import { IFriend, IUserLocation } from '../../types';
 import { FriendLocationViewModel } from '../../viewmodels';
@@ -46,6 +46,7 @@ export const FriendPage = ({ friend, friendLocationViewModel }: FriendPageProps)
     <View>
       <Avatar.Icon icon="account"/>
       <Title>{friend.name}</Title>
+      <Button onPress={() => null}>Remove Friend (TODO)</Button>
       <MapView
         style={localStyles.map}
         region={region}
