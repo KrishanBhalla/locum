@@ -1,16 +1,19 @@
 import { View } from 'react-native';
 import React from 'react'
-import { FriendsViewModel, UserViewModel } from '../../viewmodels';
+import { FriendLocationViewModel, FriendsViewModel, UserViewModel } from '../../viewmodels';
 import { Button, useTheme } from 'react-native-paper';
 import { IFriend } from '../../types';
 import { styles } from './styles';
 import { SearchPage } from './SearchPage'
-import { FriendsPage } from './FriendsPage';
+import { FriendsListPage } from './FriendsListPage';
 import { FriendRequestsPage } from './FriendRequestPage';
+import { FriendPage } from './FriendPage';
+import { FRIEND_TAB } from './types';
 
 interface FriendsScreenProps {
   userViewModel: UserViewModel,
   friendsViewModel: FriendsViewModel,
+  friendLocationViewModel: FriendLocationViewModel
 }
 
 /**
@@ -23,7 +26,7 @@ interface FriendsScreenProps {
  * That means a user needs a UserModel , which connects to the server, finds the list of MyFriends, and updates the list on drag.
  * Each friend should have a "friend" page. That means clicking on the friend needs to navigate you, (where you can see a heatmap of where they go?)
  */
-export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreenProps) => {
+export const FriendsScreen = ({ userViewModel, friendsViewModel, friendLocationViewModel }: FriendsScreenProps) => {
 
   const { colors } = useTheme()
   const [allFriends, setAllFriends] = React.useState<IFriend[]>([])
@@ -75,10 +78,11 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
   const getPage = () => { 
     switch (tabSelection) {
       case "Friends":
-        return FriendsPage({
+        return FriendsListPage({
           refreshing: refreshing,
           onRefresh: onRefresh,
-          allFriends: allFriends
+          allFriends: allFriends,
+          setTabSelection: (tab: FRIEND_TAB) => setTabSelection(tab)
         })
       case "Search":
         return SearchPage({
@@ -96,20 +100,25 @@ export const FriendsScreen = ({ userViewModel, friendsViewModel }: FriendsScreen
           allFriendRequests: allFriendRequests,
           onFriendRequestResponse: onFriendRequestResponse
         })
+        case "Single Friend Page":
+          return FriendPage({
+            friend: null,
+            friendLocationViewModel: friendLocationViewModel
+          })
     }
   }
   return (
     <View style={styles.container}>
       {getPage()}
       <View style={styles.buttonContainer}>
-        {friendTabs(tabSelection, setTabSelection, colors)}
+        {selectableFriendTabs(tabSelection, setTabSelection, colors)}
       </View>
     </View>
   )
 }
 
 
-function friendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB) => void, colors: ReactNativePaper.ThemeColors): React.ReactNode[] {
+function selectableFriendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB) => void, colors: ReactNativePaper.ThemeColors): React.ReactNode[] {
   let friendTabs: FRIEND_TAB[] = ["Friends", "Friend Requests", "Search"]
   let buttons = []
 
@@ -132,4 +141,3 @@ function friendTabs(selectedTab: FRIEND_TAB, updateSelectedTab: (tab: FRIEND_TAB
 }
 
 
-type FRIEND_TAB = "Friends" | "Search" | "Friend Requests"

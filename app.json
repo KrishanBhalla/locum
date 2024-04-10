@@ -19,6 +19,8 @@
       "usesAppleSignIn": true,
       "infoPlist": {
         "UIBackgroundModes": [
+          "location",
+          "fetch"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Allows Locum to use location services in the foreground and background.",
         "NSLocationAlwaysDescription": "Allows Locum to use location services in the background.",
@@ -48,7 +50,7 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "isIosBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
       ]

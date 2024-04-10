@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { CLIENT } from "../api/constants"
-import { IFriend, Theme } from '../types';
+import { IFriend, ITheme } from '../types';
 
 
 const LOCAL_TOKEN_KEY = 'locum-token'
@@ -76,14 +76,14 @@ export class UserModel {
         return SecureStore.getItemAsync(LOCAL_NAME_KEY);
     }
 
-    public async saveThemeLocally(theme: Theme) {
+    public async saveThemeLocally(theme: ITheme) {
         await SecureStore.setItemAsync(LOCAL_THEME_KEY, theme);
       }
       
-    public async getThemeLocally(): Promise<Theme> {
+    public async getThemeLocally(): Promise<ITheme> {
         const theme = await SecureStore.getItemAsync(LOCAL_THEME_KEY)
         if (theme) {
-            return theme as Theme;
+            return theme as ITheme;
         }
         return "light"
     }

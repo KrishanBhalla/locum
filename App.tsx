@@ -41,7 +41,7 @@ export default function App() {
   const locationViewModel = new LocationViewModel(locationModel)
   const userViewModel = new UserViewModel(userModel)
   const friendsViewModel = new FriendsViewModel(friendsModel, userModel)
-  const friendLocationsViewModel = new FriendLocationViewModel(friendsModel, userModel, friendLocationModel)
+  const friendLocationViewModel = new FriendLocationViewModel(friendsModel, userModel, friendLocationModel)
 
   const [index, setIndex] = React.useState<number>(0);
   const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean>(false);
@@ -51,7 +51,7 @@ export default function App() {
   React.useEffect(() => {
     const requestPermissions = async () => {
       const foreground = await Location.requestForegroundPermissionsAsync()
-      if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
+      // if (foreground.granted) await Location.requestBackgroundPermissionsAsync()
     }
     requestPermissions()
     userViewModel.getTheme(async (theme) => setThemeKey(theme))
@@ -111,8 +111,8 @@ export default function App() {
       }}
       />
     },
-    map: () => <MapScreen locationViewModel={locationViewModel} friendLocationsViewModel={friendLocationsViewModel}/>,
-    friends: () => <FriendsScreen userViewModel={userViewModel} friendsViewModel={friendsViewModel}/>,
+    map: () => <MapScreen locationViewModel={locationViewModel} friendLocationViewModel={friendLocationViewModel}/>,
+    friends: () => <FriendsScreen userViewModel={userViewModel} friendsViewModel={friendsViewModel} friendLocationViewModel={friendLocationViewModel}/>,
   });
 
 

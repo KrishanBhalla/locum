@@ -1,10 +1,8 @@
 import { LocationModel } from "../models"
 import * as Location from 'expo-location';
 import { LatLng, Region } from 'react-native-maps';
-import haversine from 'haversine-distance'
-import haversineDistance from "haversine-distance";
 
-const DEFAULT_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.High, distanceInterval: 10}
+const DEFAULT_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.Highest, distanceInterval: 10}
 const FAST_LOCATION_OPTS: Location.LocationOptions = {accuracy: Location.LocationAccuracy.Balanced, distanceInterval: 10}
 
 export class LocationViewModel {
@@ -15,7 +13,6 @@ export class LocationViewModel {
     errorMsg: string
     canGetLocation: boolean = false
 
-    reqMetresToForceLocationUpdate = 10
     reqMillisToForceLocationUpdate = 30_000
 
     region: Region
@@ -36,7 +33,7 @@ export class LocationViewModel {
     public async updateLocation(coords: Location.LocationObjectCoords): Promise<void> {
         const timestamp = this.currentTimestamp()
         const timeSinceUpdate = (timestamp - this.location.timestamp)
-        if ( timeSinceUpdate >  this.reqMillisToForceLocationUpdate || haversineDistance(coords, this.location.coords) > this.reqMetresToForceLocationUpdate ) {
+        if ( timeSinceUpdate >  this.reqMillisToForceLocationUpdate ) {
             this.location.coords = coords
             this.location.timestamp = timestamp
             this.location.updateLocationOnServer(coords, timestamp)
@@ -49,11 +46,11 @@ export class LocationViewModel {
     }
 
     public updateRegionCentre(latitude: number, longitude: number): void {
-        this.region =  {latitude: latitude, longitude: longitude, latitudeDelta: this.region.latitudeDelta, longitudeDelta: this.region.longitudeDelta}
+        this.region = {latitude: latitude, longitude: longitude, latitudeDelta: this.region.latitudeDelta, longitudeDelta: this.region.longitudeDelta}
     }
 
     public resetRegion(): void {
-        this.region =  {latitude: this.location.coords.latitude, longitude: this.location.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005}
+        this.region = {latitude: this.location.coords.latitude, longitude: this.location.coords.longitude, latitudeDelta: 0.005, longitudeDelta: 0.005}
     }
 
 

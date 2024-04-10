@@ -2,6 +2,7 @@ import { View, ScrollView } from "react-native"
 import { List, Button, Searchbar } from 'react-native-paper';
 import { IFriend } from "../../types"
 import { styles } from './styles';
+import { FRIEND_TAB } from "./types";
 
 export interface SearchPageProps {
     colors: ReactNativePaper.ThemeColors,
@@ -9,7 +10,9 @@ export interface SearchPageProps {
     searchResults: IFriend[],
     onChangeSearch: (query: string) => void,
     onFriendRequestClick: (userToFollow: string) => void,
-    searchQuery: string
+    searchQuery: string,
+    setTabSelection: (tabPage: FRIEND_TAB) => void,
+    setSelectedFriend: (friend: IFriend) => void,
   }
   
 export const SearchPage = ({
@@ -18,7 +21,9 @@ export const SearchPage = ({
     searchResults,
     onChangeSearch,
     onFriendRequestClick,
-    searchQuery
+    searchQuery,
+    setTabSelection,
+    setSelectedFriend,
     }: SearchPageProps) => {
   
     let friendsMap = new Set<string>()
@@ -45,10 +50,15 @@ export const SearchPage = ({
                   return  <List.Icon style={styles.listItemContainer} icon="account"/>
                 }}
                 right={() => {
-                  let conditionalButton = <Button style={styles.buttonContainer} onPress={() => {
-                    // TODO: View Profile
-                    return
-                  }}>View Profile</Button>
+                  let conditionalButton = (
+                    <Button
+                      style={styles.buttonContainer}
+                      onPress={() => {
+                          setTabSelection("Single Friend Page")
+                          setSelectedFriend(f)
+                      }}>View Profile
+                    </Button>
+                  )
                   if (!friendsMap.has(f.userId)) {
                     conditionalButton = <Button style={styles.buttonContainer} mode="outlined" color={colors.accent} onPress={() => onFriendRequestClick(f.userId)}>Send Friend Request</Button>
                   }
