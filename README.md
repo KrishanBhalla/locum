@@ -1,5 +1,5 @@
 # locum
-Frontend for Location sharing app
+Frontend for Location sharing app, because Find My Friends doesn't work in Korea
 
 ## TODOs
 
