@@ -1,6 +1,5 @@
 # locum
-Map app
-
+Frontend for Location sharing app
 
 ## TODOs
 
